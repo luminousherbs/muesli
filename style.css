@@ -3,3 +3,10 @@ body {
     color: #f0f0f0;
     font-family: Lora, serif;
 }
+
+.track {
+    background-color: #202020;
+    padding: 0.75em;
+    margin-bottom: -10px;
+    cursor: pointer;
+}

@@ -7,13 +7,14 @@ const trackList = musicData.trackList;
 const audioPlayer = document.querySelector("audio");
 
 for (let trackName of trackList) {
-    const span = document.createElement("span");
-    span.innerText = trackName;
-    span.onclick = function () {
+    const track = document.createElement("div");
+    track.className = "track";
+    track.innerText = trackName;
+    track.onclick = function () {
         audioPlayer.src = trackName;
         audioPlayer.play();
     };
     const br = document.createElement("br");
-    document.body.appendChild(span);
+    document.body.appendChild(track);
     document.body.appendChild(br);
 }
