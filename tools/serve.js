@@ -1,6 +1,11 @@
-const express = require("express");
-const path = require("path");
-const fs = require("fs").promises;
+import express from "express";
+import path from "path";
+import { promises as fs } from "fs";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 
 const port = 8000;
@@ -22,31 +27,29 @@ const mimeTypes = {
     ".m4a": "audio/mp4",
 };
 
-function createMusicElements(musicFiles) {
-    if (!Array.isArray(musicFiles))
-        console.error("createMusicElements expected array but got non-array");
+// function createMusicElements(musicFiles) {
+//     if (!Array.isArray(musicFiles))
+//         console.error("createMusicElements expected array but got non-array");
 
-    let elements = "";
+//     let elements = "";
 
-    for (let file of musicFiles) {
-        // we shouldnt be writing functions inside strings
-        // this is just placeholder logic
-        elements += `<span onclick="const audio = document.querySelector('audio'); audio.src = '${file}'; audio.play(); audio.focus();">${file}</span><br>`;
-    }
+//     for (let file of musicFiles) {
+//         // we shouldnt be writing functions inside strings
+//         // this is just placeholder logic
+//         elements += `<span onclick="const audio = document.querySelector('audio'); audio.src = '${file}'; audio.play(); audio.focus();">${file}</span><br>`;
+//     }
 
-    return elements;
-}
+//     return elements;
+// }
 
 function formatHTML(baseHTML, data) {
     if (!data.music) console.error("no music was supplied");
-    return baseHTML
-        .toString()
-        .replaceAll(
-            "<!-- <music> -->",
-            JSON.stringify({
-                trackList: data.music,
-            }) /* createMusicElements(data.music) */
-        );
+    return baseHTML.toString().replaceAll(
+        "<!-- <music> -->",
+        JSON.stringify({
+            trackList: data.music,
+        })
+    );
 }
 
 app.use(express.json()); // parse json
