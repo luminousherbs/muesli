@@ -2,6 +2,7 @@ import express from "express";
 import path from "path";
 import { promises as fs } from "fs";
 import { fileURLToPath } from "url";
+import { parseFile } from "music-metadata";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -98,18 +99,40 @@ app.listen(port, () => {
 
 // load all songs
 async function findFiles(folderPath) {
-    const foundFiles = [];
+    const foundFilePaths = [];
     try {
-        const files = await fs.readdir(folderPath);
-        for (const file of files) {
-            const filePath = path.join(folderPath, file);
-            foundFiles.push(filePath);
+        const filePaths = await fs.readdir(folderPath);
+        for (const filePath of filePaths) {
+            const fullFilePath = path.join(folderPath, filePath);
+            parseFile(fullFilePath).then((fileData) => {
+                const requiredData = {};
+                requiredData.path = fullFilePath;
+                requiredData.date = fileData.format.creationTime;
+                requiredData.artists = fileData.common.artists;
+                requiredData.album = fileData.common.album;
+                requiredData.title = fileData.common.title;
+
+                // binary images aren't supported in json
+                // so we have to convert to base 64 first
+
+                // i have no idea why the image is in a 1 element array
+                // but it is, so we have to get the 0th and only element of that array
+                const binaryImageData = fileData.common.picture[0].data;
+
+                const base64ImageData =
+                    Buffer.from(binaryImageData).toString("base64");
+                requiredData.image = {
+                    format: binaryImageData.format,
+                    data: base64ImageData,
+                };
+                foundFilePaths.push(requiredData);
+            });
         }
     } catch (err) {
         console.error("Error reading folder:", err);
         return;
     }
-    return foundFiles;
+    return foundFilePaths;
 }
 
 let musicFiles;
