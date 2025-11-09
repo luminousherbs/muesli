@@ -117,6 +117,8 @@ async function findFiles(folderPath) {
 
                 // i have no idea why the image is in a 1 element array
                 // but it is, so we have to get the 0th and only element of that array
+                console.log(fileData);
+                console.log(fileData.common.picture);
                 const binaryImageData = fileData.common.picture[0].data;
 
                 const base64ImageData =
@@ -136,6 +138,6 @@ async function findFiles(folderPath) {
 }
 
 let musicFiles;
-findFiles("./data/music/dark-synth").then((res) => {
+findFiles("./data/music/").then((res) => {
     musicFiles = res;
 });
