@@ -8,10 +8,12 @@ const audioPlayer = document.querySelector("audio");
 
 let trackIndex = 0;
 
-function playTrack(trackLocation) {
-    audioPlayer.src = trackLocation;
+function playTrack(index) {
+    trackIndex = index;
+    audioPlayer.src = trackList[trackIndex].path;
     audioPlayer.play();
     audioPlayer.focus();
+    document.title = `${trackList[trackIndex].title} - muesli`;
 }
 
 function createBlobLink(base64ImageData) {
@@ -25,8 +27,7 @@ for (let track of trackList) {
     trackDiv.className = "track";
     trackDiv.dataset.index = thisTrackIndex;
     trackDiv.onclick = function () {
-        trackIndex = trackDiv.dataset.index;
-        playTrack(trackList[trackIndex].path);
+        playTrack(trackDiv.dataset.index);
     };
 
     const info = document.createElement("div");
@@ -58,9 +59,7 @@ for (let track of trackList) {
 }
 
 audioPlayer.addEventListener("ended", function () {
-    trackIndex++;
-    trackIndex %= trackList.length;
-    playTrack(trackList[trackIndex].path);
+    playTrack((trackIndex + 1) % trackList.length);
 });
 
 /* 
