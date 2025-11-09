@@ -4,7 +4,9 @@ console.log("Loaded: script.js");
 const musicData = JSON.parse(document.querySelector("#music-data").textContent);
 const trackList = musicData.trackList;
 
+// html elements
 const audioPlayer = document.querySelector("audio");
+const favicon = document.getElementById("favicon");
 
 let trackIndex = 0;
 
@@ -14,10 +16,15 @@ function playTrack(index) {
     audioPlayer.play();
     audioPlayer.focus();
     document.title = `${trackList[trackIndex].title} - muesli`;
+    setFavicon(createBlobLink(trackList[trackIndex].image));
 }
 
 function createBlobLink(base64ImageData) {
     return `data:${base64ImageData.format};base64,${base64ImageData.data}`;
+}
+
+function setFavicon(imageLink) {
+    favicon.href = imageLink;
 }
 
 let thisTrackIndex = 0;
