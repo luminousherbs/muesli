@@ -30,6 +30,7 @@ const mimeTypes = {
 
 function formatHTML(baseHTML, data) {
     if (!data.music) console.error("no music was supplied");
+    // TODO: replace with a POST request
     return baseHTML.toString().replaceAll(
         "<!-- <music> -->",
         JSON.stringify({
@@ -40,7 +41,26 @@ function formatHTML(baseHTML, data) {
 
 app.use(express.json()); // parse json
 
+// heart
+app.post("/api/heart/", async (req, res) => {
+    // req.body contains the JSON data sent in the request
+    const heartData = await fs.readFile("data/heart.json");
+    const heartedTracks = JSON.parse(heartData);
+    console.log(heartedTracks);
+    if (heartedTracks.includes(req.body.path)) {
+        res.status(200); // i think this is the correct code to send?
+        res.json({ status: "unmodified" });
+    } else {
+        heartedTracks.push(req.body.path);
+        console.log(heartedTracks);
+        await fs.writeFile("data/heart.json", JSON.stringify(heartedTracks));
+        res.status(200);
+        res.json({ status: "success" });
+    }
+});
+
 // middleware
+// this should be placed after POST requests, so POST requests get tried first
 app.use(async (req, res, next) => {
     try {
         const filePath = path.join(
@@ -71,7 +91,6 @@ app.use(async (req, res, next) => {
         next(error);
     }
 });
-
 // handle errors
 app.use((err, req, res, next) => {
     console.error(err);
