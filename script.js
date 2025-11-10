@@ -1,5 +1,10 @@
 console.log("Loaded: script.js");
 
+import { createIcon } from "./assets/scripts/icons.js";
+
+// const heart = createIcon("heart");
+// document.body.appendChild(heart);
+
 // get the tracklist from json data sent by the server (thanks server much appreciated)
 const musicData = JSON.parse(document.querySelector("#music-data").textContent);
 const trackList = musicData.trackList;
