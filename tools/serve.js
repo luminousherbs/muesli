@@ -28,21 +28,6 @@ const mimeTypes = {
     ".m4a": "audio/mp4",
 };
 
-// function createMusicElements(musicFiles) {
-//     if (!Array.isArray(musicFiles))
-//         console.error("createMusicElements expected array but got non-array");
-
-//     let elements = "";
-
-//     for (let file of musicFiles) {
-//         // we shouldnt be writing functions inside strings
-//         // this is just placeholder logic
-//         elements += `<span onclick="const audio = document.querySelector('audio'); audio.src = '${file}'; audio.play(); audio.focus();">${file}</span><br>`;
-//     }
-
-//     return elements;
-// }
-
 function formatHTML(baseHTML, data) {
     if (!data.music) console.error("no music was supplied");
     return baseHTML.toString().replaceAll(
