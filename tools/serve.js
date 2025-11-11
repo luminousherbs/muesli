@@ -103,18 +103,18 @@ app.listen(port, () => {
 
 // load all songs
 async function findFiles(folderPath) {
-    const foundFilePaths = [];
+    const files = {};
     try {
         const filePaths = await fs.readdir(folderPath);
         for (const filePath of filePaths) {
             const fullFilePath = path.join(folderPath, filePath);
             parseFile(fullFilePath).then((fileData) => {
-                const requiredData = {};
-                requiredData.path = fullFilePath;
-                requiredData.date = fileData.format.creationTime;
-                requiredData.artists = fileData.common.artists;
-                requiredData.album = fileData.common.album;
-                requiredData.title = fileData.common.title;
+                const trackData = {};
+                trackData.path = fullFilePath;
+                trackData.date = fileData.format.creationTime;
+                trackData.artists = fileData.common.artists;
+                trackData.album = fileData.common.album;
+                trackData.title = fileData.common.title;
 
                 // binary images aren't supported in json
                 // so we have to convert to base 64 first
@@ -125,21 +125,18 @@ async function findFiles(folderPath) {
 
                 const base64ImageData =
                     Buffer.from(binaryImageData).toString("base64");
-                requiredData.image = {
+                trackData.image = {
                     format: binaryImageData.format,
                     data: base64ImageData,
                 };
-                foundFilePaths.push(requiredData);
+                files[fullFilePath] = trackData;
             });
         }
     } catch (err) {
         console.error("Error reading folder:", err);
         return;
     }
-    return foundFilePaths;
+    return files;
 }
 
-let musicFiles;
-findFiles("./data/music/").then((res) => {
-    musicFiles = res;
-});
+const musicFiles = await findFiles("./data/music/");

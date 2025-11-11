@@ -3,26 +3,29 @@ console.log("Loaded: script.js");
 import { createIcon } from "./assets/scripts/icons.js";
 
 // TODO: add support for unhearting tracks (currently impossible)
-// TODO: organise trackList and tracksByPath into the same data structure to remove duplicated data
 
 // get the tracklist from json data sent by the server (thanks server much appreciated)
 const musicData = JSON.parse(document.querySelector("#music-data").textContent);
 const trackList = musicData.trackList;
-const tracksByPath = {};
+const queue = [];
+let nowPlaying = 0; // index into `queue`
 
 // html elements
 const audioPlayer = document.querySelector("audio");
 const favicon = document.getElementById("favicon");
 
-let trackIndex = 0;
-
-function playTrack(index) {
-    trackIndex = index;
-    audioPlayer.src = trackList[trackIndex].path;
+function playTrack(path) {
+    if (queue.includes(path)) {
+        nowPlaying = queue.indexOf(path);
+    } else {
+        queue.push(path);
+        nowPlaying = queue.length - 1;
+    }
+    audioPlayer.src = path;
     audioPlayer.play();
     audioPlayer.focus();
-    document.title = `${trackList[trackIndex].title} - muesli`;
-    setFavicon(createBlobLink(trackList[trackIndex].image));
+    document.title = `${trackList[path].title} - muesli`;
+    setFavicon(createBlobLink(trackList[path].image));
 }
 
 function displayTrackAsHearted(trackPath, hearted) {
@@ -33,7 +36,7 @@ function displayTrackAsHearted(trackPath, hearted) {
     );
     heartButton.style.color = hearted ? "red" : "white";
     heartButton.style.fill = hearted ? "red" : "none";
-    tracksByPath[trackPath].hearted = hearted;
+    // tracksByPath[trackPath].hearted = hearted;
 }
 
 function heartTrack(trackPath) {
@@ -59,19 +62,20 @@ function setFavicon(imageLink) {
 }
 
 let thisTrackIndex = 0;
-for (let track of trackList) {
+for (let [path, track] of Object.entries(trackList)) {
+    console.log(path, track);
     //
     // create div which is the track card
     const trackDiv = document.createElement("div");
     trackDiv.className = "track";
     trackDiv.dataset.index = thisTrackIndex;
-    trackDiv.dataset.path = track.path;
+    trackDiv.dataset.path = path;
 
     // create secondary div which holds everything that should trigger playback when clicked
     const playbackArea = document.createElement("div");
     playbackArea.className = "track-playback-area";
     playbackArea.onclick = function () {
-        playTrack(trackDiv.dataset.index);
+        playTrack(trackDiv.dataset.path);
     };
 
     // create tertiary div which holds title and description
@@ -121,26 +125,15 @@ for (let track of trackList) {
     document.body.appendChild(trackDiv);
     document.body.appendChild(br);
 
-    tracksByPath[track.path] = track;
-    tracksByPath[track.path].hearted = false;
+    queue.push(path);
 
     thisTrackIndex++;
 }
 
 audioPlayer.addEventListener("ended", function () {
-    playTrack((trackIndex + 1) % trackList.length);
+    nowPlaying += 1;
+    nowPlaying %= queue.length; // start again if we finish the queue
+    playTrack(queue[nowPlaying]);
 });
-
-/* 
-const blob = new Blob([trackList[0].image.data], {
-    type: trackList[0].image.format,
-});
-const url = URL.createObjectURL(blob);
-
-// Display the image
-const img = document.createElement("img");
-img.src = url;
-document.body.appendChild(img);
- */
 
 displayTrackAsHearted("data/music/funk.m4a", true);
