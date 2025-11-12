@@ -46,19 +46,35 @@ app.post("/api/heart/", async (req, res) => {
     // req.body contains the JSON data sent in the request
     const heartData = await fs.readFile("data/heart.json");
     const heartedTracks = JSON.parse(heartData);
-    console.log(heartedTracks);
-    if (heartedTracks.includes(req.body.path)) {
-        res.status(200); // i think this is the correct code to send?
-        res.json({ status: "unmodified" });
+    if (req.body.hearted) {
+        if (heartedTracks.includes(req.body.path)) {
+            res.status(200); // i think this is the correct code to send?
+            res.json({ status: "unmodified" });
+        } else {
+            heartedTracks.push(req.body.path);
+            await fs.writeFile(
+                "data/heart.json",
+                JSON.stringify(heartedTracks)
+            );
+            res.status(200);
+            res.json({ status: "success" });
+        }
     } else {
-        heartedTracks.push(req.body.path);
-        console.log(heartedTracks);
-        await fs.writeFile("data/heart.json", JSON.stringify(heartedTracks));
-        res.status(200);
-        res.json({ status: "success" });
+        if (!heartedTracks.includes(req.body.path)) {
+            res.status(200); // i think this is the correct code to send?
+            res.json({ status: "unmodified" });
+        } else {
+            heartedTracks.splice(heartedTracks.indexOf(req.body.path), 1);
+            await fs.writeFile(
+                "data/heart.json",
+                JSON.stringify(heartedTracks)
+            );
+            res.status(200);
+            res.json({ status: "success" });
+        }
     }
+    console.log(await heartedTracks);
 });
-
 // middleware
 // this should be placed after POST requests, so POST requests get tried first
 app.use(async (req, res, next) => {
@@ -82,6 +98,7 @@ app.use(async (req, res, next) => {
             ext === ".js"
         ) {
             console.log("sending text");
+            const musicFiles = await findFiles("./data/music/");
             res.send(formatHTML(fileContent, { music: musicFiles }));
         } else {
             console.log("sending binary file");
@@ -104,33 +121,35 @@ app.listen(port, () => {
 // load all songs
 async function findFiles(folderPath) {
     const files = {};
+    const heartData = await fs.readFile("data/heart.json");
+    const heartedTracks = JSON.parse(heartData);
     try {
         const filePaths = await fs.readdir(folderPath);
         for (const filePath of filePaths) {
             const fullFilePath = path.join(folderPath, filePath);
-            parseFile(fullFilePath).then((fileData) => {
-                const trackData = {};
-                trackData.path = fullFilePath;
-                trackData.date = fileData.format.creationTime;
-                trackData.artists = fileData.common.artists;
-                trackData.album = fileData.common.album;
-                trackData.title = fileData.common.title;
+            const fileData = await parseFile(fullFilePath);
+            const trackData = {};
+            trackData.path = fullFilePath;
+            trackData.date = fileData.format.creationTime;
+            trackData.artists = fileData.common.artists;
+            trackData.album = fileData.common.album;
+            trackData.title = fileData.common.title;
+            trackData.hearted = heartedTracks.includes(fullFilePath);
 
-                // binary images aren't supported in json
-                // so we have to convert to base 64 first
+            // binary images aren't supported in json
+            // so we have to convert to base 64 first
 
-                // i have no idea why the image is in a 1 element array
-                // but it is, so we have to get the 0th and only element of that array
-                const binaryImageData = fileData.common.picture[0].data;
+            // i have no idea why the image is in a 1 element array
+            // but it is, so we have to get the 0th and only element of that array
+            const binaryImageData = fileData.common.picture[0].data;
 
-                const base64ImageData =
-                    Buffer.from(binaryImageData).toString("base64");
-                trackData.image = {
-                    format: binaryImageData.format,
-                    data: base64ImageData,
-                };
-                files[fullFilePath] = trackData;
-            });
+            const base64ImageData =
+                Buffer.from(binaryImageData).toString("base64");
+            trackData.image = {
+                format: binaryImageData.format,
+                data: base64ImageData,
+            };
+            files[fullFilePath] = trackData;
         }
     } catch (err) {
         console.error("Error reading folder:", err);
@@ -138,5 +157,3 @@ async function findFiles(folderPath) {
     }
     return files;
 }
-
-const musicFiles = await findFiles("./data/music/");

@@ -6,6 +6,8 @@ import { createIcon } from "./assets/scripts/icons.js";
 
 // get the tracklist from json data sent by the server (thanks server much appreciated)
 const musicData = JSON.parse(document.querySelector("#music-data").textContent);
+// const heartedTracks = JSON.parse(await fetch("data/heart.json"));
+// console.log(await fetch("data/heart.json"));
 const trackList = musicData.trackList;
 const queue = [];
 let nowPlaying = 0; // index into `queue`
@@ -13,6 +15,16 @@ let nowPlaying = 0; // index into `queue`
 // html elements
 const audioPlayer = document.querySelector("audio");
 const favicon = document.getElementById("favicon");
+
+async function post(url, data) {
+    return await fetch(url, {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: {
+            "Content-type": "application/json; charset=UTF-8",
+        },
+    });
+}
 
 function playTrack(path) {
     if (queue.includes(path)) {
@@ -28,28 +40,22 @@ function playTrack(path) {
     setFavicon(createBlobLink(trackList[path].image));
 }
 
-function displayTrackAsHearted(trackPath, hearted) {
+function updateHeartIcon(path) {
     const heartButton = document.querySelector(
         // get the first [element with an icon type of heart] that is a child of an [element with a filepath matching the argument]
         // ie. the heart icon of the track we want to like
-        `[data-path="${trackPath}"] [data-icon-type="heart"]`
+        `[data-path="${path}"] [data-icon-type="heart"]`
     );
-    heartButton.style.color = hearted ? "red" : "white";
-    heartButton.style.fill = hearted ? "red" : "none";
-    // tracksByPath[trackPath].hearted = hearted;
+    heartButton.style.color = trackList[path].hearted ? "red" : "white";
+    heartButton.style.fill = trackList[path].hearted ? "red" : "none";
+
+    // heartTrackOnServer(path);
 }
 
-function heartTrack(trackPath) {
-    fetch("/api/heart/", {
-        method: "POST",
-        body: JSON.stringify({
-            path: trackPath,
-        }),
-        headers: {
-            "Content-type": "application/json; charset=UTF-8",
-        },
-    }).then((res) => {
-        console.log(res);
+function updateHeartFile(path) {
+    post("/api/heart/", {
+        path: path,
+        hearted: trackList[path].hearted,
     });
 }
 
@@ -103,8 +109,9 @@ for (let [path, track] of Object.entries(trackList)) {
     interactionBox.className = "interaction-box";
     const heart = createIcon("heart");
     heart.onclick = function () {
-        heartTrack(track.path);
-        displayTrackAsHearted(track.path, !tracksByPath[track.path].hearted);
+        trackList[path].hearted = !trackList[path].hearted;
+        updateHeartIcon(path);
+        updateHeartFile(path);
     };
     heart.dataset.iconType = "heart";
 
@@ -127,6 +134,8 @@ for (let [path, track] of Object.entries(trackList)) {
 
     queue.push(path);
 
+    updateHeartIcon(path);
+
     thisTrackIndex++;
 }
 
@@ -135,5 +144,3 @@ audioPlayer.addEventListener("ended", function () {
     nowPlaying %= queue.length; // start again if we finish the queue
     playTrack(queue[nowPlaying]);
 });
-
-displayTrackAsHearted("data/music/funk.m4a", true);
