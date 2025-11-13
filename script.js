@@ -2,12 +2,8 @@ console.log("Loaded: script.js");
 
 import { createIcon } from "./assets/scripts/icons.js";
 
-// TODO: add support for unhearting tracks (currently impossible)
-
 // get the tracklist from json data sent by the server (thanks server much appreciated)
 const musicData = JSON.parse(document.querySelector("#music-data").textContent);
-// const heartedTracks = JSON.parse(await fetch("data/heart.json"));
-// console.log(await fetch("data/heart.json"));
 const trackList = musicData.trackList;
 const queue = [];
 let nowPlaying = 0; // index into `queue`
@@ -46,8 +42,12 @@ function updateHeartIcon(path) {
         // ie. the heart icon of the track we want to like
         `[data-path="${path}"] [data-icon-type="heart"]`
     );
-    heartButton.style.color = trackList[path].hearted ? "red" : "white";
-    heartButton.style.fill = trackList[path].hearted ? "red" : "none";
+    heartButton.style.color = trackList[path].hearted
+        ? "var(--secondary)"
+        : "white";
+    heartButton.style.fill = trackList[path].hearted
+        ? "var(--secondary)"
+        : "none";
 
     // heartTrackOnServer(path);
 }
@@ -110,6 +110,13 @@ for (let [path, track] of Object.entries(trackList)) {
     const heart = createIcon("heart");
     heart.onclick = function () {
         trackList[path].hearted = !trackList[path].hearted;
+        if (trackList[path].hearted) {
+            heart.classList.remove("shrink");
+            heart.classList.add("grow");
+        } else {
+            heart.classList.remove("grow");
+            heart.classList.add("shrink");
+        }
         updateHeartIcon(path);
         updateHeartFile(path);
     };
