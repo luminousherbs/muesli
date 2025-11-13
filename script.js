@@ -11,6 +11,7 @@ let nowPlaying = 0; // index into `queue`
 // html elements
 const audioPlayer = document.querySelector("audio");
 const favicon = document.getElementById("favicon");
+const trackContainer = document.getElementById("trackContainer");
 
 async function post(url, data) {
     return await fetch(url, {
@@ -35,6 +36,8 @@ function playTrack(path) {
     document.title = `${trackList[path].title} - muesli`;
     setFavicon(createBlobLink(trackList[path].image));
 }
+
+function drawQueue() {}
 
 function updateHeartIcon(path) {
     const heartButton = document.querySelector(
@@ -136,8 +139,8 @@ for (let [path, track] of Object.entries(trackList)) {
 
     trackDiv.appendChild(playbackArea);
     trackDiv.appendChild(interactionBox);
-    document.body.appendChild(trackDiv);
-    document.body.appendChild(br);
+    trackContainer.appendChild(trackDiv);
+    // trackContainer.appendChild(br);
 
     queue.push(path);
 
