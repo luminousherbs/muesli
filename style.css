@@ -9,6 +9,12 @@ body {
     font-family: Lora, serif;
 }
 
+body.grinch {
+    background-image: url("data/jimcarrey.jpg");
+    background-repeat: repeat;
+    background-size: 300px 100px;
+}
+
 .track {
     display: flex;
     align-items: center;
