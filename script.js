@@ -5,8 +5,8 @@ import { createIcon } from "./assets/scripts/icons.js";
 // get the tracklist from json data sent by the server (thanks server much appreciated)
 const musicData = JSON.parse(document.querySelector("#music-data").textContent);
 const trackList = musicData.trackList;
-const queue = [];
-let nowPlaying = 0; // index into `queue`
+let queue = [];
+// let nowPlaying = 0; // index into `queue`
 
 // html elements
 const audioPlayer = document.querySelector("audio");
@@ -24,20 +24,89 @@ async function post(url, data) {
 }
 
 function playTrack(path) {
+    // if (queue.includes(path)) {
+    //     nowPlaying = queue.indexOf(path);
+    // } else {
+    //     queue.push(path);
+    //     nowPlaying = queue.length - 1;
+    // }
+    // audioPlayer.src = path;
+    // audioPlayer.play();
+    // audioPlayer.focus();
+    // document.title = `${trackList[path].title} - muesli`;
+    // setFavicon(createBlobLink(trackList[path].image));
+    // console.log(queue);
+    // drawQueue();
+    console.log("playing arbitrary track");
+    console.log("old queue", queue);
     if (queue.includes(path)) {
-        nowPlaying = queue.indexOf(path);
-    } else {
-        queue.push(path);
-        nowPlaying = queue.length - 1;
+        queue = queue.filter((item) => item !== path);
     }
-    audioPlayer.src = path;
-    audioPlayer.play();
-    audioPlayer.focus();
-    document.title = `${trackList[path].title} - muesli`;
-    setFavicon(createBlobLink(trackList[path].image));
+    queue.unshift(path);
+    console.log("new queue", queue);
+    playNextTrack();
 }
 
-function drawQueue() {}
+function playNextTrack() {
+    console.log("playing next track");
+    console.log("old queue", queue);
+    queue.push(queue.shift()); // move the first element to the end
+    console.log("new queue", queue);
+    const nextTrack = queue[0];
+    audioPlayer.src = nextTrack;
+    audioPlayer.play();
+    audioPlayer.focus();
+    document.title = `${trackList[nextTrack].title} - muesli`;
+    setFavicon(createBlobLink(trackList[nextTrack].image));
+    console.log(queue);
+    drawQueue();
+}
+
+function drawQueue() {
+    let index = 0;
+    // for (let q of queue) /* this is not confusing at all */ {
+    //     console.log("looping for", q);
+    //     const trackDiv = document.querySelector(`[data-path="${q}"]`);
+    //     trackDiv.classList.add("slide-up");
+    //     trackDiv.dataset.index = index;
+    //     trackDiv.addEventListener(
+    //         "animationend",
+    //         function () {
+    //             // wait until the animation is finished to move it
+    //             console.log("finished");
+    //             trackDiv.classList.remove("slide-up");
+
+    //             if (trackDiv.dataset.index == 0) {
+    //                 console.log("0th item");
+    //                 trackContainer.moveBefore(trackDiv, null);
+    //             }
+    //         }
+    //         // false
+    //     );
+    //     index++;
+    console.log(queue);
+    for (let q of queue) {
+        const trackDiv = document.querySelector(`[data-path="${q}"]`);
+        trackDiv.classList.add("slide-up");
+        // trackDiv.addEventListener("animationend", function () {
+        setTimeout(function () {
+            void trackContainer.offsetHeight;
+            trackDiv.classList.remove("slide-up");
+        }, 201);
+        // if (queue.indexOf(q) === 0) {
+        // }/
+        //
+        // });
+    }
+    setTimeout(function () {
+        void trackContainer.offsetHeight;
+        trackContainer.appendChild(document.querySelector(".track"), null);
+        for (let q of queue) {
+            const trackDiv = document.querySelector(`[data-path="${q}"]`);
+            trackDiv.classList.remove("slide-up");
+        }
+    }, 200);
+}
 
 function updateHeartIcon(path) {
     const heartButton = document.querySelector(
@@ -150,7 +219,12 @@ for (let [path, track] of Object.entries(trackList)) {
 }
 
 audioPlayer.addEventListener("ended", function () {
-    nowPlaying += 1;
-    nowPlaying %= queue.length; // start again if we finish the queue
-    playTrack(queue[nowPlaying]);
+    // nowPlaying += 1;
+    // nowPlaying %= queue.length; // start again if we finish the queue
+    // playTrack(queue[nowPlaying]);
+    playNextTrack();
 });
+window.playNextTrack = playNextTrack;
+window.queue = function () {
+    return queue;
+};

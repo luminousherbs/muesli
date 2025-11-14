@@ -112,6 +112,20 @@ audio {
     }
 }
 
+@keyframes slide-up {
+    from {
+        transform: translateY(0);
+    }
+    to {
+        /* move up 100% */
+        transform: translateY(-100%);
+    }
+}
+
+.slide-up {
+    animation: slide-up 0.2s linear;
+}
+
 /* @keyframes shrink {
     0% {
         transform: scale(1);
@@ -126,4 +140,8 @@ audio {
 
 .grow {
     animation: grow 0.25s cubic-bezier(0, 0.5, 1, 0.5);
+}
+
+.track-container {
+    overflow: hidden;
 }
