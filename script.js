@@ -66,89 +66,14 @@ function playNextTrack() {
 }
 
 function drawQueue() {
-    // let index = 0;
-    // for (let q of queue) /* this is not confusing at all */ {
-    //     console.log("looping for", q);
-    //     const trackDiv = document.querySelector(`[data-path="${q}"]`);
-    //     trackDiv.classList.add("slide-up");
-    //     trackDiv.dataset.index = index;
-    //     trackDiv.addEventListener(
-    //         "animationend",
-    //         function () {
-    //             // wait until the animation is finished to move it
-    //             console.log("finished");
-    //             trackDiv.classList.remove("slide-up");
-    //             if (trackDiv.dataset.index == 0) {
-    //                 console.log("0th item");
-    //                 trackContainer.moveBefore(trackDiv, null);
-    //             }
-    //         }
-    //         // false
-    //     );
-    //     index++;
-    // console.log(queue);
-    // for (let q of queue) {
-    //     const trackDiv = document.querySelector(`[data-path="${q}"]`);
-    //     trackDiv.dataset.index = index;
-    //     trackDiv.classList.add("slide-up");
-    //     // trackDiv.addEventListener("animationend", function () {
-    //     setTimeout(function () {
-    //         void trackContainer.offsetHeight;
-    //         trackDiv.classList.remove("slide-up");
-    //     }, 201);
-    //     // if (queue.indexOf(q) === 0) {
-    //     // }/
-    //     //
-    //     // });
-    //     if (index === 0) {
-    //         trackDiv.addEventListener("animationend", function () {
-    //             console.log("finished");
-    //             trackContainer.moveBefore(trackDiv, null);
-    //         });
-    //     }
-    //     index++;
-    // }
-    // index = 0;
-    // for (let track of trackContainer.children) {
-    //     track.dataset.index = index;
-    //     index++;
-    // }
-    // setTimeout(function () {
-    //     void trackContainer.offsetHeight;
-    //     trackContainer.moveBefore(document.querySelector(".track"), null);
-    //     for (let q of queue) {
-    //         const trackDiv = document.querySelector(`[data-path="${q}"]`);
-    //         trackDiv.classList.remove("slide-up");
-    //     }
-    // }, 200);
-    console.log(queue);
-
     let index = 0;
-    // this would work
     for (let q of queue) {
         const trackDiv = document.querySelector(`[data-path="${q}"]`);
-        // trackDiv.classList.add("slide-up");
-        // trackDiv.addEventListener("animationend", function () {
-        //     trackDiv.classList.remove("slide-up");
-        // });
         trackContainer.insertBefore(trackDiv, null);
         if (index === 0) trackDiv.classList.add("playing");
         else trackDiv.classList.remove("playing");
         index++;
     }
-    // const finishedTrack = trackContainer.children[0];
-    // for (let trackDiv of trackContainer.children) {
-    //     // console.log(trackDiv);
-    //     trackDiv.classList.add("slide-up");
-    //     trackDiv.addEventListener("animationend", function () {
-    //         // console.log(trackDiv.dataset.path, "finished");
-    //         trackDiv.classList.remove("slide-up");
-    //         if (trackDiv === finishedTrack) {
-    //             // console.log(trackDiv.dataset.path, "favorite child");
-    //             trackContainer.moveBefore(trackDiv, null);
-    //         }
-    //     });
-    // }
 }
 
 function updateHeartIcon(path) {
