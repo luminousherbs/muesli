@@ -131,7 +131,7 @@ function drawQueue() {
         // trackDiv.addEventListener("animationend", function () {
         //     trackDiv.classList.remove("slide-up");
         // });
-        trackContainer.insertBefore(trackDiv, null);
+        trackContainer.moveBefore(trackDiv, null);
         if (index === 0) trackDiv.classList.add("playing");
         else trackDiv.classList.remove("playing");
         index++;
