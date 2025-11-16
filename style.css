@@ -1,12 +1,24 @@
 :root {
-    --primary: #0f2c46;
-    --secondary: #8bc0ee;
+    --blank: #101010;
+    --reverse: #f0f0f0;
+
+    --primary-0: #1a1a1a;
+    --primary-1: #282828;
+    --primary-2: #303030;
+
+    --highlight-1: #0f2c46;
+    --highlight-2: #17344e;
+
+    --icon: #8bc0ee;
 }
 
 body {
-    background-color: #101010;
-    color: #f0f0f0;
+    color: var(--reverse);
     font-family: Lora, serif;
+}
+
+body:not(.grinch) {
+    background-color: var(--blank);
 }
 
 body.grinch {
@@ -15,10 +27,13 @@ body.grinch {
     background-size: 44vw 16vh;
 }
 
+.track-container {
+    overflow: hidden;
+}
+
 .track {
     display: flex;
     align-items: center;
-    background-color: #282828;
     box-sizing: border-box;
     width: 90%;
     margin-bottom: 0.5rem;
@@ -26,16 +41,36 @@ body.grinch {
     justify-content: space-between;
 }
 
-.track:hover {
-    background-color: #303030;
+.track:not(.playing) {
+    background-color: var(--primary-1);
+}
+
+.track.playing {
+    background-color: var(--highlight-1);
+}
+
+.track:not(.playing):hover {
+    background-color: var(--primary-2);
     /* 303030 */
+}
+
+.track.playing:hover {
+    background-color: var(--highlight-2);
+    /* 303030 */
+}
+
+.track-playback-area {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    cursor: pointer;
 }
 
 .track-album-cover {
     /* width: px; */
     height: 4rem;
     border-radius: 10px;
-    border: 3px solid #1a1a1a;
+    border: 3px solid var(--primary-0);
     object-fit: cover;
 }
 
@@ -60,31 +95,6 @@ body.grinch {
     line-height: 1.5;
 }
 
-audio {
-    position: fixed;
-    bottom: 0.5rem;
-    width: 100%;
-}
-
-.icon {
-    width: 24px;
-    height: 24px;
-    transform: scale(1);
-    transition: transform 100ms ease-in-out;
-    cursor: pointer;
-}
-
-.icon:hover {
-    fill: red;
-    color: red;
-    transform: scale(1.2);
-    transition: transform 100ms ease-in-out;
-}
-
-/* 
-.interaction {
-} */
-
 .interaction-box {
     display: flex;
     /* margin-left: auto; */
@@ -92,11 +102,27 @@ audio {
     height: 100%;
 }
 
-.track-playback-area {
-    width: 100%;
-    display: flex;
-    flex-direction: row;
+.icon {
+    width: 24px;
+    height: 24px;
+    transition: transform 100ms ease-in-out;
     cursor: pointer;
+}
+
+.icon:not(:hover) {
+    transform: scale(1);
+    transition: transform 100ms ease-in-out;
+}
+
+.icon:hover {
+    transform: scale(1.2);
+    transition: transform 100ms ease-in-out;
+}
+
+audio {
+    position: fixed;
+    bottom: 0.5rem;
+    width: 100%;
 }
 
 @keyframes grow {
@@ -112,6 +138,10 @@ audio {
     }
 }
 
+.grow {
+    animation: grow 0.25s cubic-bezier(0, 0.5, 1, 0.5);
+}
+
 @keyframes slide-up {
     from {
         transform: translateY(0);
@@ -124,24 +154,4 @@ audio {
 
 .slide-up {
     animation: slide-up 0.2s linear;
-}
-
-/* @keyframes shrink {
-    0% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(0.9);
-    }
-    100% {
-        transform: scale(1);
-    }
-} */
-
-.grow {
-    animation: grow 0.25s cubic-bezier(0, 0.5, 1, 0.5);
-}
-
-.track-container {
-    overflow: hidden;
 }
