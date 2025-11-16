@@ -24,6 +24,16 @@ async function post(url, data) {
 }
 
 function playTrack(path) {
+    audioPlayer.src = path;
+    audioPlayer.play();
+    audioPlayer.focus();
+    document.title = `${trackList[path].title} - muesli`;
+    setFavicon(createBlobLink(trackList[path].image));
+    console.log(queue);
+    drawQueue();
+}
+
+function playChosenTrack(path) {
     // if (queue.includes(path)) {
     //     nowPlaying = queue.indexOf(path);
     // } else {
@@ -44,7 +54,7 @@ function playTrack(path) {
     }
     queue.unshift(path);
     console.log("new queue", queue);
-    playNextTrack();
+    playTrack(queue[0]);
 }
 
 function playNextTrack() {
@@ -52,18 +62,11 @@ function playNextTrack() {
     console.log("old queue", queue);
     queue.push(queue.shift()); // move the first element to the end
     console.log("new queue", queue);
-    const nextTrack = queue[0];
-    audioPlayer.src = nextTrack;
-    audioPlayer.play();
-    audioPlayer.focus();
-    document.title = `${trackList[nextTrack].title} - muesli`;
-    setFavicon(createBlobLink(trackList[nextTrack].image));
-    console.log(queue);
-    drawQueue();
+    playTrack(queue[0]);
 }
 
 function drawQueue() {
-    let index = 0;
+    // let index = 0;
     // for (let q of queue) /* this is not confusing at all */ {
     //     console.log("looping for", q);
     //     const trackDiv = document.querySelector(`[data-path="${q}"]`);
@@ -75,7 +78,6 @@ function drawQueue() {
     //             // wait until the animation is finished to move it
     //             console.log("finished");
     //             trackDiv.classList.remove("slide-up");
-
     //             if (trackDiv.dataset.index == 0) {
     //                 console.log("0th item");
     //                 trackContainer.moveBefore(trackDiv, null);
@@ -84,28 +86,69 @@ function drawQueue() {
     //         // false
     //     );
     //     index++;
+    // console.log(queue);
+    // for (let q of queue) {
+    //     const trackDiv = document.querySelector(`[data-path="${q}"]`);
+    //     trackDiv.dataset.index = index;
+    //     trackDiv.classList.add("slide-up");
+    //     // trackDiv.addEventListener("animationend", function () {
+    //     setTimeout(function () {
+    //         void trackContainer.offsetHeight;
+    //         trackDiv.classList.remove("slide-up");
+    //     }, 201);
+    //     // if (queue.indexOf(q) === 0) {
+    //     // }/
+    //     //
+    //     // });
+    //     if (index === 0) {
+    //         trackDiv.addEventListener("animationend", function () {
+    //             console.log("finished");
+    //             trackContainer.moveBefore(trackDiv, null);
+    //         });
+    //     }
+    //     index++;
+    // }
+    // index = 0;
+    // for (let track of trackContainer.children) {
+    //     track.dataset.index = index;
+    //     index++;
+    // }
+    // setTimeout(function () {
+    //     void trackContainer.offsetHeight;
+    //     trackContainer.moveBefore(document.querySelector(".track"), null);
+    //     for (let q of queue) {
+    //         const trackDiv = document.querySelector(`[data-path="${q}"]`);
+    //         trackDiv.classList.remove("slide-up");
+    //     }
+    // }, 200);
     console.log(queue);
+
+    let index = 0;
+    // this would work
     for (let q of queue) {
         const trackDiv = document.querySelector(`[data-path="${q}"]`);
-        trackDiv.classList.add("slide-up");
+        // trackDiv.classList.add("slide-up");
         // trackDiv.addEventListener("animationend", function () {
-        setTimeout(function () {
-            void trackContainer.offsetHeight;
-            trackDiv.classList.remove("slide-up");
-        }, 201);
-        // if (queue.indexOf(q) === 0) {
-        // }/
-        //
+        //     trackDiv.classList.remove("slide-up");
         // });
+        trackContainer.insertBefore(trackDiv, null);
+        if (index === 0) trackDiv.classList.add("playing");
+        else trackDiv.classList.remove("playing");
+        index++;
     }
-    setTimeout(function () {
-        void trackContainer.offsetHeight;
-        trackContainer.appendChild(document.querySelector(".track"), null);
-        for (let q of queue) {
-            const trackDiv = document.querySelector(`[data-path="${q}"]`);
-            trackDiv.classList.remove("slide-up");
-        }
-    }, 200);
+    // const finishedTrack = trackContainer.children[0];
+    // for (let trackDiv of trackContainer.children) {
+    //     // console.log(trackDiv);
+    //     trackDiv.classList.add("slide-up");
+    //     trackDiv.addEventListener("animationend", function () {
+    //         // console.log(trackDiv.dataset.path, "finished");
+    //         trackDiv.classList.remove("slide-up");
+    //         if (trackDiv === finishedTrack) {
+    //             // console.log(trackDiv.dataset.path, "favorite child");
+    //             trackContainer.moveBefore(trackDiv, null);
+    //         }
+    //     });
+    // }
 }
 
 function updateHeartIcon(path) {
@@ -115,10 +158,10 @@ function updateHeartIcon(path) {
         `[data-path="${path}"] [data-icon-type="heart"]`
     );
     heartButton.style.color = trackList[path].hearted
-        ? "var(--secondary)"
+        ? "var(--tertiary)"
         : "white";
     heartButton.style.fill = trackList[path].hearted
-        ? "var(--secondary)"
+        ? "var(--tertiary)"
         : "none";
 
     // heartTrackOnServer(path);
@@ -153,7 +196,7 @@ for (let [path, track] of Object.entries(trackList)) {
     const playbackArea = document.createElement("div");
     playbackArea.className = "track-playback-area";
     playbackArea.onclick = function () {
-        playTrack(trackDiv.dataset.path);
+        playChosenTrack(trackDiv.dataset.path);
     };
 
     // create tertiary div which holds title and description
@@ -222,6 +265,7 @@ audioPlayer.addEventListener("ended", function () {
     // nowPlaying += 1;
     // nowPlaying %= queue.length; // start again if we finish the queue
     // playTrack(queue[nowPlaying]);
+    console.log("track ended");
     playNextTrack();
 });
 window.playNextTrack = playNextTrack;
