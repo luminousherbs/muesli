@@ -119,6 +119,16 @@ body.grinch {
     transition: transform 100ms ease-in-out;
 }
 
+.icon:not(.active) {
+    stroke: var(--reverse);
+    fill: var(none);
+}
+
+.icon.active {
+    stroke: var(--icon);
+    fill: var(--icon);
+}
+
 audio {
     position: fixed;
     bottom: 0.5rem;

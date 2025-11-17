@@ -6,7 +6,7 @@ import { createIcon } from "./assets/scripts/icons.js";
 const musicData = JSON.parse(document.querySelector("#music-data").textContent);
 const trackList = musicData.trackList;
 let queue = [];
-// let nowPlaying = 0; // index into `queue`
+const history = [];
 
 // html elements
 const audioPlayer = document.querySelector("audio");
@@ -24,13 +24,15 @@ async function post(url, data) {
 }
 
 function playTrack(path) {
+    history.push(queue[0]);
+    console.log("history", history);
     audioPlayer.src = path;
     audioPlayer.play();
     audioPlayer.focus();
     document.title = `${trackList[path].title} - muesli`;
     setFavicon(createBlobLink(trackList[path].image));
-    console.log(queue);
     drawQueue();
+    console.log(history);
 }
 
 function playChosenTrack(path) {
@@ -79,15 +81,15 @@ function drawQueue() {
 function updateHeartIcon(path) {
     const heartButton = document.querySelector(
         // get the first [element with an icon type of heart] that is a child of an [element with a filepath matching the argument]
-        // ie. the heart icon of the track we want to like
+        // ie. the heart icon of the track we want to heart
         `[data-path="${path}"] [data-icon-type="heart"]`
     );
-    heartButton.style.color = trackList[path].hearted
-        ? "var(--tertiary)"
-        : "white";
-    heartButton.style.fill = trackList[path].hearted
-        ? "var(--tertiary)"
-        : "none";
+
+    if (trackList[path].hearted) {
+        heartButton.classList.add("active");
+    } else {
+        heartButton.classList.remove("active");
+    }
 
     // heartTrackOnServer(path);
 }
@@ -191,9 +193,31 @@ audioPlayer.addEventListener("ended", function () {
     // nowPlaying %= queue.length; // start again if we finish the queue
     // playTrack(queue[nowPlaying]);
     console.log("track ended");
+    history.push(queue[0]);
     playNextTrack();
 });
 window.playNextTrack = playNextTrack;
 window.queue = function () {
     return queue;
 };
+
+// handle keybinds
+
+navigator.mediaSession.setActionHandler("play", () => {
+    audioPlayer.play();
+});
+
+navigator.mediaSession.setActionHandler("pause", () => {
+    audioPlayer.pause();
+});
+
+navigator.mediaSession.setActionHandler("previoustrack", () => {
+    console.log("skip back");
+    history.pop();
+    playChosenTrack(history.pop());
+});
+
+navigator.mediaSession.setActionHandler("nexttrack", () => {
+    console.log("skip forward");
+    playNextTrack();
+});
