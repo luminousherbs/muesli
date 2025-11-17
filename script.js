@@ -25,45 +25,24 @@ async function post(url, data) {
 
 function playTrack(path) {
     history.push(queue[0]);
-    console.log("history", history);
     audioPlayer.src = path;
     audioPlayer.play();
     audioPlayer.focus();
     document.title = `${trackList[path].title} - muesli`;
     setFavicon(createBlobLink(trackList[path].image));
     drawQueue();
-    console.log(history);
 }
 
 function playChosenTrack(path) {
-    // if (queue.includes(path)) {
-    //     nowPlaying = queue.indexOf(path);
-    // } else {
-    //     queue.push(path);
-    //     nowPlaying = queue.length - 1;
-    // }
-    // audioPlayer.src = path;
-    // audioPlayer.play();
-    // audioPlayer.focus();
-    // document.title = `${trackList[path].title} - muesli`;
-    // setFavicon(createBlobLink(trackList[path].image));
-    // console.log(queue);
-    // drawQueue();
-    console.log("playing arbitrary track");
-    console.log("old queue", queue);
     if (queue.includes(path)) {
         queue = queue.filter((item) => item !== path);
     }
     queue.unshift(path);
-    console.log("new queue", queue);
     playTrack(queue[0]);
 }
 
 function playNextTrack() {
-    console.log("playing next track");
-    console.log("old queue", queue);
     queue.push(queue.shift()); // move the first element to the end
-    console.log("new queue", queue);
     playTrack(queue[0]);
 }
 
@@ -90,8 +69,6 @@ function updateHeartIcon(path) {
     } else {
         heartButton.classList.remove("active");
     }
-
-    // heartTrackOnServer(path);
 }
 
 function updateHeartFile(path) {
@@ -111,7 +88,6 @@ function setFavicon(imageLink) {
 
 let thisTrackIndex = 0;
 for (let [path, track] of Object.entries(trackList)) {
-    console.log(path, track);
     //
     // create div which is the track card
     const trackDiv = document.createElement("div");
@@ -164,10 +140,6 @@ for (let [path, track] of Object.entries(trackList)) {
     };
     heart.dataset.iconType = "heart";
 
-    // create linebreak between cards
-    // TODO: this should be replaced with css on a parent div which holds all the cards
-    const br = document.createElement("br");
-
     info.appendChild(title);
     info.appendChild(description);
 
@@ -179,7 +151,6 @@ for (let [path, track] of Object.entries(trackList)) {
     trackDiv.appendChild(playbackArea);
     trackDiv.appendChild(interactionBox);
     trackContainer.appendChild(trackDiv);
-    // trackContainer.appendChild(br);
 
     queue.push(path);
 
@@ -189,10 +160,6 @@ for (let [path, track] of Object.entries(trackList)) {
 }
 
 audioPlayer.addEventListener("ended", function () {
-    // nowPlaying += 1;
-    // nowPlaying %= queue.length; // start again if we finish the queue
-    // playTrack(queue[nowPlaying]);
-    console.log("track ended");
     history.push(queue[0]);
     playNextTrack();
 });
