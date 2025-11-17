@@ -212,12 +212,10 @@ navigator.mediaSession.setActionHandler("pause", () => {
 });
 
 navigator.mediaSession.setActionHandler("previoustrack", () => {
-    console.log("skip back");
     history.pop();
     playChosenTrack(history.pop());
 });
 
 navigator.mediaSession.setActionHandler("nexttrack", () => {
-    console.log("skip forward");
     playNextTrack();
 });
